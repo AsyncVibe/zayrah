@@ -1,6 +1,6 @@
 "use server";
 import { PrismaClient } from "@/lib/generated/prisma";
-import { convertToPlainObject } from "../utils";
+// import { convertToPlainObject } from "../utils";
 import { LATEST_PRODUCTS_LIMIT } from "../constants";
 
 export async function getLatestProducts() {
@@ -11,6 +11,12 @@ export async function getLatestProducts() {
 			createdAt: "desc",
 		},
 	});
-	const plainProducts = convertToPlainObject(products);
+	// const plainProducts = convertToPlainObject(products);
+	const plainProducts = products.map((p) => ({
+		...p,
+		price: p.price.toNumber(), // ✅ convert Decimal to number
+		rating: p.rating.toNumber(),
+	}));
+
 	return plainProducts;
 }
