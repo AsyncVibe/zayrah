@@ -27,6 +27,6 @@
 		"node_modules",
 		"lib/generated/prisma",
 		"lib/generated/prisma/**/*.ts",
-		"lib/generated/prisma/**/*.js"
+		"lib/generated/prisma/**/*.js" //ignore lib/generated/prisma/**/*.js otherwise, you will encounter hell of the errors
 	]
 }

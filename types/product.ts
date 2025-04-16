@@ -1,12 +1,7 @@
 import { z } from "zod";
-const currency = z.coerce.number().refine(
-	(val) => {
-		return /^\d+\.\d{2}$/.test(val.toFixed(2));
-	},
-	{
-		message: "Price must have exactly 2 decimal places",
-	}
-);
+// const currency = z.coerce.string().refine((val) => /^\d+\.\d{2}$/.test(val), {
+// 	message: "Price must be a string with exactly 2 decimal places",
+// });
 export const ProductSchema = z.object({
 	name: z.string().min(3, {
 		message: "Name must be at least 3 characters",
@@ -26,12 +21,12 @@ export const ProductSchema = z.object({
 	stock: z.coerce.number().min(0),
 	isFeatured: z.boolean(),
 	banner: z.string().nullable(),
-	price: currency,
+	price: z.string(),
 });
 export type Product = z.infer<typeof ProductSchema> & {
 	id: string;
 	createdAt: Date;
-	rating: number;
+	rating: string;
 };
 
 // generator client {
