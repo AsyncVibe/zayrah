@@ -34,6 +34,9 @@ export async function signInWithCredentials(
 }
 // signOut User
 export async function signOutUser() {
-	// this will automatically kill the session, cookie, etc
 	await signOut();
+	return {
+		success: true,
+		message: "User signed out successfully",
+	};
 }

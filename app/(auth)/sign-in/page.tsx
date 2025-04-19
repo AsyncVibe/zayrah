@@ -21,7 +21,6 @@ const SignInPage = async ({
 	const session = await auth();
 	// callback will allow the user to return to the same page at which he was before signing in
 	const callbackUrl = searchParams.callbackUrl;
-	console.log("-------", callbackUrl);
 	if (session) {
 		return redirect(callbackUrl || "/");
 	}
