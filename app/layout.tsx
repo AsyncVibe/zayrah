@@ -21,7 +21,7 @@ export default function RootLayout({
 			<body cz-shortcut-listen="true" className={inter.className}>
 				<ThemeProvider
 					attribute="class"
-					defaultTheme="system"
+					defaultTheme="light"
 					enableSystem
 					disableTransitionOnChange>
 					{children}

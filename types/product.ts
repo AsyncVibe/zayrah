@@ -28,32 +28,12 @@ export type Product = z.infer<typeof ProductSchema> & {
 	createdAt: Date;
 	rating: string;
 };
+// schema for signing user in
+export const signInFormSchema = z.object({
+	email: z.string().email("Invalid email address"),
+	password: z.string().min(6, {
+		message: "Password must be at least 6 characters",
+	}),
+});
 
-// generator client {
-//   provider        = "prisma-client-js"
-//   output          = "../lib/generated/prisma"
-//   previewFeatures = ["driverAdapters"]
-// }
-
-// datasource db {
-//   provider = "postgresql"
-//   url      = env("DATABASE_URL")
-// }
-
-// // this is how we define our shchema
-// model Product {
-//   id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-//   name        String
-//   slug        String   @unique(map: "product_slug_idx")
-//   category    String
-//   description String
-//   images      String[]
-//   price       Decimal  @default(0) @db.Decimal(12, 2)
-//   brand       String
-//   rating      Decimal  @default(0) @db.Decimal(3, 2)
-//   numReviews  Int      @default(0)
-//   stock       Int
-//   isFeatured  Boolean  @default(false)
-//   banner      String?
-//   createdAt   DateTime @default(now()) @db.Timestamp(6)
-// }
+export type SignInForm = z.infer<typeof signInFormSchema>;
