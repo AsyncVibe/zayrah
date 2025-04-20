@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import Image from "next/image";
 import Link from "next/link";
 import ProductPrice from "./ProductPrice";
-import { Product } from "@/types/product";
+import { Product } from "@/types/validators";
 const ProductCard = ({ product }: { product: Product }) => {
 	return (
 		<Card className="w-full max-w-sm shadow-lg hover:shadow-2xl transition-shadow duration-300 rounded-lg p-6">

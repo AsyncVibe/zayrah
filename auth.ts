@@ -4,6 +4,7 @@ import { prisma } from "@/db/prisma";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { compareSync } from "bcrypt-ts-edge";
 import type { NextAuthConfig } from "next-auth";
+import { NextResponse } from "next/server";
 export const config = {
 	pages: {
 		signIn: "/sign-in",
@@ -21,18 +22,48 @@ export const config = {
 			else if (new URL(url).origin === baseUrl) return url;
 			return baseUrl;
 		},
-		async session({ session, token }) {
-			// set user id from token
+		async jwt({ token, user, trigger, session }: any) {
+			if (user) {
+				token.role = user.role;
+				if (user.name === "NO_NAME") {
+					token.name = user.email.split("@")[0];
+				}
+				// update the db to reflect the new name
+				await prisma.user.update({
+					where: { id: user.id },
+					data: { name: token.name },
+				});
+			}
+			return token;
+		},
+		async session({ session, user, trigger, token }: any) {
 			session.user.id = token.sub as string;
+			session.user.role = token.role as string;
+			session.user.name = token.name as string;
+			if (trigger === "update") {
+				session.user.name = user.name;
+			}
 			return session;
 		},
-		// async session({ session, user, trigger, token }: any) {
-		// 	// set user id from token
-		// 	session.user.id = token.sub as string;
-		// 	if (trigger === "update") {
-		// 		session.user.name = user.name;
+		// authorized({ request, auth }: any) {
+		// 	//check for session cart cookie
+		// 	if (!request.cookies.get("sessionCartId")) {
+		// 		// Generate new session cart ID cookie
+		// 		const sessionCartId = crypto.randomUUID();
+		// 		// clone the request header
+		// 		const newRequestHeaders = new Headers(request.headers);
+		// 		// create new response and add new headers
+		// 		const response = NextResponse.next({
+		// 			request: {
+		// 				headers: newRequestHeaders,
+		// 			},
+		// 		});
+		// 		// set new cookie
+		// 		response.cookies.set("sessionCartId", sessionCartId);
+		// 		return response;
+		// 	} else {
+		// 		return true;
 		// 	}
-		// 	return session;
 		// },
 	},
 	adapter: PrismaAdapter(prisma),

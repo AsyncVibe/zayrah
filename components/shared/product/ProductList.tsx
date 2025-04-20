@@ -1,4 +1,4 @@
-import { Product } from "@/types/product";
+import { Product } from "@/types/validators";
 import ProductCard from "./ProductCard";
 
 const ProductList = ({

@@ -1,4 +1,5 @@
 import NotFoundPage from "@/app/not-found";
+import AddToCart from "@/components/shared/product/AddToCart";
 import ProductImages from "@/components/shared/product/ProductImages";
 import ProductPrice from "@/components/shared/product/ProductPrice";
 import { Badge } from "@/components/ui/badge";
@@ -14,6 +15,7 @@ async function ProductDetailPage({
 }) {
 	const product = await getProductBySlug(slug);
 	const {
+		id,
 		name,
 		category,
 		description,
@@ -80,9 +82,19 @@ async function ProductDetailPage({
 									</div>
 								</div>
 								{stock > 0 && (
-									<Button className="w-full hover:scale-105 duration-300 transition-all ease-in-out">
-										Add to Cart
-									</Button>
+									// <Button className="w-full hover:scale-105 duration-300 transition-all ease-in-out">
+									// 	Add to Cart
+									// </Button>
+									<AddToCart
+										item={{
+											productId: id,
+											slug: slug,
+											name: name,
+											image: images[0],
+											quantity: 1,
+											price: price,
+										}}
+									/>
 								)}
 							</CardContent>
 						</Card>

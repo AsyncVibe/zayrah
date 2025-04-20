@@ -4,6 +4,7 @@ import { APP_DESCRIPTION, APP_NAME, SERVER_URL } from "@/lib/constants";
 const inter = Inter({ subsets: ["latin"] });
 import { ThemeProvider } from "next-themes";
 import { SessionProvider } from "next-auth/react";
+import { Toaster } from "@/components/ui/toaster";
 export const metadata = {
 	title: {
 		default: APP_NAME,
@@ -25,7 +26,10 @@ export default function RootLayout({
 					defaultTheme="light"
 					enableSystem
 					disableTransitionOnChange>
-					<SessionProvider>{children}</SessionProvider>
+					<SessionProvider>
+						{children}
+						<Toaster />
+					</SessionProvider>
 				</ThemeProvider>
 			</body>
 		</html>
