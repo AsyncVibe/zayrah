@@ -23,7 +23,6 @@ export async function getProductBySlug(slug: string) {
 			slug: slug,
 		},
 	});
-	console.log(product);
 	if (!product) {
 		return {
 			success: false,

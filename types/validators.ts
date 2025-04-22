@@ -2,7 +2,9 @@ import { z } from "zod";
 // const currency = z.coerce.string().refine((val) => /^\d+\.\d{2}$/.test(val), {
 // 	message: "Price must be a string with exactly 2 decimal places",
 // });
-const ProductSchema = z.object({
+// Schemas for Server Actions
+// Product Schema
+export const ProductSchema = z.object({
 	name: z.string().min(3, {
 		message: "Name must be at least 3 characters",
 	}),
@@ -23,22 +25,15 @@ const ProductSchema = z.object({
 	banner: z.string().nullable(),
 	price: z.string(),
 });
-export type Product = z.infer<typeof ProductSchema> & {
-	id: string;
-	createdAt: Date;
-	rating: string;
-};
-// schema for signing user in
-const signInFormSchema = z.object({
+// Signin Form Schema
+export const signInFormSchema = z.object({
 	email: z.string().email("Invalid email address"),
 	password: z.string().min(6, {
 		message: "Password must be at least 6 characters",
 	}),
 });
-
-export type SignInForm = z.infer<typeof signInFormSchema>;
-// schema for signing user up
-const signUpFormSchema = z
+// Sign Up form schema
+export const signUpFormSchema = z
 	.object({
 		name: z.string().min(3, {
 			message: "Name must be at least 3 characters",
@@ -53,10 +48,8 @@ const signUpFormSchema = z
 		message: "Passwords do not match",
 		path: ["confirmPassword"],
 	});
-export type SignUpForm = z.infer<typeof signUpFormSchema>;
-
-// cart Item schema
-const cartItemSchema = z.object({
+// cart item schema
+export const cartItemSchema = z.object({
 	productId: z.string().min(1, {
 		message: "Product ID is required",
 	}),
@@ -76,7 +69,6 @@ const cartItemSchema = z.object({
 		message: "Product price is required",
 	}),
 });
-export type CartItem = z.infer<typeof cartItemSchema>;
 // Cart Schema
 export const cartSchema = z.object({
 	items: z.array(cartItemSchema),
@@ -89,4 +81,39 @@ export const cartSchema = z.object({
 	}),
 	userId: z.string().optional().nullable(),
 });
+// Shipping Address Schema
+export const shippingAddressSchema = z.object({
+	fullName: z.string().min(3, "Name must be at least 3 characters"),
+	streetAddress: z
+		.string()
+		.min(3, "Street address must be at least 3 characters"),
+	city: z.string().min(3, "City must be at least 3 characters"),
+	postalCode: z.string().min(3, "Postal code must be at least 3 characters"),
+	country: z.string().min(3, "Country must be at least 3 characters"),
+	lat: z.number().optional(),
+	lng: z.number().optional(),
+});
+
+// Types for Client side
+// Product Type
+export type Product = z.infer<typeof ProductSchema> & {
+	id: string;
+	createdAt: Date;
+	rating: string;
+};
+// Signinform type
+
+export type SignInForm = z.infer<typeof signInFormSchema>;
+// Signupform type
+
+export type SignUpForm = z.infer<typeof signUpFormSchema>;
+
+// cartitem type
+
+export type CartItem = z.infer<typeof cartItemSchema>;
+// Cart type
+
 export type Cart = z.infer<typeof cartSchema>;
+// shipping address type
+
+export type ShippingAddress = z.infer<typeof shippingAddressSchema>;

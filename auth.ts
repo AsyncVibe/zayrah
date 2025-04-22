@@ -5,6 +5,8 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { compareSync } from "bcrypt-ts-edge";
 import type { NextAuthConfig } from "next-auth";
 import { NextResponse } from "next/server";
+// import { NextResponse } from "next/server";
+// import { cookies } from "next/headers";
 export const config = {
 	pages: {
 		signIn: "/sign-in",
@@ -14,58 +16,7 @@ export const config = {
 		strategy: "jwt",
 		maxAge: 30 * 24 * 60 * 60, // 30 days
 	},
-	callbacks: {
-		async redirect({ url, baseUrl }) {
-			// Allows relative callback URLs
-			if (url.startsWith("/")) return `${baseUrl}${url}`;
-			// Allows callback URLs on the same origin
-			else if (new URL(url).origin === baseUrl) return url;
-			return baseUrl;
-		},
-		async jwt({ token, user, trigger, session }: any) {
-			if (user) {
-				token.role = user.role;
-				if (user.name === "NO_NAME") {
-					token.name = user.email.split("@")[0];
-				}
-				// update the db to reflect the new name
-				await prisma.user.update({
-					where: { id: user.id },
-					data: { name: token.name },
-				});
-			}
-			return token;
-		},
-		async session({ session, user, trigger, token }: any) {
-			session.user.id = token.sub as string;
-			session.user.role = token.role as string;
-			session.user.name = token.name as string;
-			if (trigger === "update") {
-				session.user.name = user.name;
-			}
-			return session;
-		},
-		// authorized({ request, auth }: any) {
-		// 	//check for session cart cookie
-		// 	if (!request.cookies.get("sessionCartId")) {
-		// 		// Generate new session cart ID cookie
-		// 		const sessionCartId = crypto.randomUUID();
-		// 		// clone the request header
-		// 		const newRequestHeaders = new Headers(request.headers);
-		// 		// create new response and add new headers
-		// 		const response = NextResponse.next({
-		// 			request: {
-		// 				headers: newRequestHeaders,
-		// 			},
-		// 		});
-		// 		// set new cookie
-		// 		response.cookies.set("sessionCartId", sessionCartId);
-		// 		return response;
-		// 	} else {
-		// 		return true;
-		// 	}
-		// },
-	},
+
 	adapter: PrismaAdapter(prisma),
 	providers: [
 		CredentialsProvider({
@@ -102,6 +53,50 @@ export const config = {
 			},
 		}),
 	],
+	callbacks: {
+		authorized({ request, auth }: any) {
+			const isLoggedIn = !!auth?.user;
+			const isOnSignInPage = request.nextUrl.pathname === "/sign-in";
+
+			if (isLoggedIn && isOnSignInPage) {
+				return NextResponse.redirect(new URL("/", request.url));
+			}
+			if (!isLoggedIn && !isOnSignInPage) {
+				return false; // Redirect to sign-in
+			}
+			return true;
+		},
+		async redirect({ url, baseUrl }) {
+			// Allows relative callback URLs
+			if (url.startsWith("/")) return `${baseUrl}${url}`;
+			// Allows callback URLs on the same origin
+			else if (new URL(url).origin === baseUrl) return url;
+			return baseUrl;
+		},
+		async jwt({ token, user, trigger, session }: any) {
+			if (user) {
+				token.role = user.role;
+				if (user.name === "NO_NAME") {
+					token.name = user.email.split("@")[0];
+				}
+				// update the db to reflect the new name
+				await prisma.user.update({
+					where: { id: user.id },
+					data: { name: token.name },
+				});
+			}
+			return token;
+		},
+		async session({ session, user, trigger, token }: any) {
+			session.user.id = token.sub as string;
+			session.user.role = token.role as string;
+			session.user.name = token.name as string;
+			if (trigger === "update") {
+				session.user.name = user.name;
+			}
+			return session;
+		},
+	},
 } satisfies NextAuthConfig;
 
 export const { handlers, auth, signIn, signOut } = NextAuth(config);

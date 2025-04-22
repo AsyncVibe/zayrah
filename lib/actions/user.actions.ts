@@ -43,27 +43,6 @@ export async function signOutUser() {
 		message: "User signed out successfully",
 	};
 }
-
-// Update user name
-export async function updateUserName(userId: string, name: string) {
-	try {
-		const user = await prisma.user.update({
-			where: { id: userId },
-			data: { name },
-		});
-
-		return {
-			success: true,
-			message: "User name updated successfully",
-			user,
-		};
-	} catch (error) {
-		return {
-			success: false,
-			message: formatError(error),
-		};
-	}
-}
 // signUp User
 export async function signUpUser(prevState: unknown, formData: FormData) {
 	try {
@@ -113,4 +92,13 @@ export async function signUpUser(prevState: unknown, formData: FormData) {
 			message: formatError(error),
 		};
 	}
+}
+
+// Get user by id
+export async function getUserById(userId: string) {
+	const user = await prisma.user.findFirst({
+		where: { id: userId },
+	});
+	if (!user) throw new Error("User not found");
+	return user;
 }

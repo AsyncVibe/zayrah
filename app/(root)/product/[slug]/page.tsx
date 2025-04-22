@@ -6,14 +6,15 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { getProductBySlug } from "@/lib/actions/product.actions";
-export const dynamic = "force-dynamic";
-
+import { Product } from "@/types/validators";
+import { getMyCart } from "@/lib/actions/cart.actions";
 async function ProductDetailPage({
 	params: { slug },
 }: {
 	params: { slug: string };
 }) {
 	const product = await getProductBySlug(slug);
+	const cart = await getMyCart();
 	const {
 		id,
 		name,
@@ -86,13 +87,14 @@ async function ProductDetailPage({
 									// 	Add to Cart
 									// </Button>
 									<AddToCart
+										cart={cart}
 										item={{
 											productId: id,
 											slug: slug,
 											name: name,
 											image: images[0],
 											quantity: 1,
-											price: price,
+											price: price.toString(),
 										}}
 									/>
 								)}
