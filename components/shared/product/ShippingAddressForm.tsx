@@ -5,9 +5,10 @@ import { useTransition } from "react";
 import { shippingAddressSchema } from "@/types/validators";
 import { useToast } from "@/hooks/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ControllerRenderProps, useForm } from "react-hook-form";
+import { ControllerRenderProps, useForm, SubmitHandler } from "react-hook-form";
 import { z } from "zod";
 import { shippingAddressDefaultValues } from "@/lib/constants";
+import { updateUserAddress } from "@/lib/actions/user.actions";
 import {
 	Form,
 	FormControl,
@@ -27,9 +28,24 @@ const ShippingAddressForm = ({ address }: { address: ShippingAddress }) => {
 		resolver: zodResolver(shippingAddressSchema),
 		defaultValues: address || shippingAddressDefaultValues,
 	});
-	const onSubmit = (values) => {
-		console.log(values);
-		return;
+	const onSubmit: SubmitHandler<z.infer<typeof shippingAddressSchema>> = async (
+		values
+	) => {
+		startTransition(async () => {
+			const res = await updateUserAddress(values);
+			if (!res.success) {
+				toast({
+					title: "destructive",
+					description: res.message,
+				});
+				return;
+			}
+			router.push("/payment-method");
+			toast({
+				title: "Success",
+				description: `${res.message}`,
+			});
+		});
 	};
 	return (
 		<div className="max-w-md mx-auto space-y-4">
