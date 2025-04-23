@@ -1,21 +1,48 @@
-// middleware.ts
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { getToken } from "next-auth/jwt";
 
 export async function middleware(request: NextRequest) {
-	// Check for session cart cookie; if it does not exist, we create it and then starts adding to it whatever is in the cart. Next time, when the use would visit our website, he would see the items that were added to the cart.
+	// Check authentication for protected routes
+	const protectedPaths = [
+		"/shipping-address",
+		"/payment-method",
+		"/place-order",
+		"/admin",
+		"/profile",
+		"/order",
+	];
+
+	const isProtectedPath = protectedPaths.some((path) =>
+		request.nextUrl.pathname.startsWith(path)
+	);
+
+	// Get the token
+	const token = await getToken({
+		req: request,
+		secret: process.env.NEXTAUTH_SECRET,
+	});
+
+	// Handle protected routes
+	if (isProtectedPath && !token) {
+		const signInUrl = new URL("/sign-in", request.url);
+		signInUrl.searchParams.set("callbackUrl", request.url);
+		return NextResponse.redirect(signInUrl);
+	}
+
+	// Redirect authenticated users away from auth pages
+	if (
+		token &&
+		(request.nextUrl.pathname === "/sign-in" ||
+			request.nextUrl.pathname === "/sign-up")
+	) {
+		return NextResponse.redirect(new URL("/", request.url));
+	}
+
+	// Handle session cart creation if cookie doesn't exist
 	if (!request.cookies.get("sessionCartId")) {
-		// Generate new session cart ID cookie
 		const sessionCartId = crypto.randomUUID();
-		// Clone the request headers
-		const newRequestHeaders = new Headers(request.headers);
-		// Create new response and add headers
-		const response = NextResponse.next({
-			request: {
-				headers: newRequestHeaders,
-			},
-		});
-		// Set new cookie
+		const response = NextResponse.next();
 		response.cookies.set("sessionCartId", sessionCartId);
 		return response;
 	}
@@ -24,5 +51,13 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-	matcher: ["/((?!api|_next/static|_next/image|favicon.ico|sign-in).*)"], // Apply to all routes except API, static, sign-in
+	matcher: [
+		"/((?!api|_next/static|_next/image|favicon.ico).*)",
+		"/shipping-address",
+		"/payment-method",
+		"/place-order",
+		"/admin",
+		"/profile",
+		"/order/:path*",
+	],
 };

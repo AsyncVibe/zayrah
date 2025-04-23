@@ -5,6 +5,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { compareSync } from "bcrypt-ts-edge";
 import type { NextAuthConfig } from "next-auth";
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
 // import { NextResponse } from "next/server";
 // import { cookies } from "next/headers";
 export const config = {
@@ -54,18 +55,6 @@ export const config = {
 		}),
 	],
 	callbacks: {
-		authorized({ request, auth }: any) {
-			const isLoggedIn = !!auth?.user;
-			const isOnSignInPage = request.nextUrl.pathname === "/sign-in";
-
-			if (isLoggedIn && isOnSignInPage) {
-				return NextResponse.redirect(new URL("/", request.url));
-			}
-			if (!isLoggedIn && !isOnSignInPage) {
-				return false; // Redirect to sign-in
-			}
-			return true;
-		},
 		async redirect({ url, baseUrl }) {
 			// Allows relative callback URLs
 			if (url.startsWith("/")) return `${baseUrl}${url}`;
@@ -75,6 +64,7 @@ export const config = {
 		},
 		async jwt({ token, user, trigger, session }: any) {
 			if (user) {
+				token.id = user.id;
 				token.role = user.role;
 				if (user.name === "NO_NAME") {
 					token.name = user.email.split("@")[0];
@@ -84,6 +74,31 @@ export const config = {
 					where: { id: user.id },
 					data: { name: token.name },
 				});
+				// logic to make user cart persistent across sessions
+				if (trigger === "signIn" || trigger === "signUp") {
+					const cookiesObject = await cookies();
+					const sessionCartId = cookiesObject.get("sessionCartId")?.value;
+					if (sessionCartId) {
+						const sessionCart = await prisma.cart.findFirst({
+							where: { sessionCartId },
+						});
+						if (sessionCart) {
+							// delete current user cart
+							await prisma.cart.deleteMany({
+								where: { userId: user.id },
+							});
+							// assign new cart
+							await prisma.cart.update({
+								where: { id: sessionCart.id },
+								data: { userId: user.id },
+							});
+						}
+					}
+				}
+			}
+			// handle session update
+			if (session?.user.name && trigger === "update") {
+				token.name = session.user.name;
 			}
 			return token;
 		},
@@ -95,6 +110,9 @@ export const config = {
 				session.user.name = user.name;
 			}
 			return session;
+		},
+		authorized({ auth }: any) {
+			return !!auth;
 		},
 	},
 } satisfies NextAuthConfig;

@@ -107,11 +107,12 @@ export async function getMyCart() {
 	const sessionCartId = (await cookies()).get("sessionCartId")?.value;
 	if (!sessionCartId) throw new Error("Cart not found");
 	// get session and the user id
-	const session = await auth();
-	const userId = session?.user?.id ? (session.user.id as string) : undefined;
+	// const session = await auth();
+	// const userId = session?.user?.id ? (session.user.id as string) : undefined;
 	// get the cart from the db
 	const cart = await prisma.cart.findFirst({
-		where: userId ? { userId } : { id: sessionCartId },
+		// where: userId ? { userId } : { id: sessionCartId },
+		where: { sessionCartId: sessionCartId },
 	});
 	if (!cart) return undefined;
 	// convert decimals into string and return
