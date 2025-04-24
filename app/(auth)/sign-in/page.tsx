@@ -7,23 +7,10 @@ import {
 } from "@/components/ui/card";
 import Image from "next/image";
 import Link from "next/link";
-import { auth } from "@/auth";
-import { redirect } from "next/navigation";
-
 export const metadata = {
 	title: "Sign In",
 };
-const SignInPage = async ({
-	searchParams,
-}: {
-	searchParams: { callbackUrl?: string };
-}) => {
-	const session = await auth();
-	// callback will allow the user to return to the same page at which he was before signing in
-	const callbackUrl = searchParams.callbackUrl;
-	if (session) {
-		return redirect(callbackUrl || "/");
-	}
+const SignInPage = async () => {
 	return (
 		<div className="w-full max-w-md mx-auto">
 			<Card className="p-2">
@@ -43,7 +30,7 @@ const SignInPage = async ({
 					</CardDescription>
 				</CardHeader>
 				{/* Pass the callbackUrl as a prop to SignInForm */}
-				<SignInForm callbackUrl={searchParams?.callbackUrl || "/"} />
+				<SignInForm />
 			</Card>
 		</div>
 	);

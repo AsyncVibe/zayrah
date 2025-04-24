@@ -1,3 +1,4 @@
+import { PAYMENT_METHODS } from "@/lib/constants";
 import { z } from "zod";
 // const currency = z.coerce.string().refine((val) => /^\d+\.\d{2}$/.test(val), {
 // 	message: "Price must be a string with exactly 2 decimal places",
@@ -93,7 +94,35 @@ export const shippingAddressSchema = z.object({
 	lat: z.number().optional(),
 	lng: z.number().optional(),
 });
+// Schema for Payment method
+export const paymentMethodSchema = z
+	.object({
+		type: z.string().min(1, "Payment method is required"),
+	})
+	.refine((data) => PAYMENT_METHODS.includes(data.type), {
+		path: ["type"],
+		message: "Invalid payment method",
+	});
 
+// Schema for inserting order
+export const OrderSchema = z.object({
+	userId: z.string().min(1, "User ID is required"),
+	itemsPrice: z.string().min(1, "Items price is required"),
+	totalPrice: z.string().min(1, "Total price is required"),
+	taxPrice: z.string().min(1, "Total price is required"),
+	shippingPrice: z.string().min(1, "Shipping price is required"),
+	paymentMethod: z.string().min(1, "Payment method is required"),
+	shippingAddress: shippingAddressSchema,
+});
+// schema for OrderItem
+export const OrderItemSchema = z.object({
+	productId: z.string(),
+	slug: z.string(),
+	image: z.string(),
+	name: z.string(),
+	price: z.string(),
+	quantity: z.number(),
+});
 // Types for Client side
 // Product Type
 export type Product = z.infer<typeof ProductSchema> & {
@@ -117,3 +146,18 @@ export type Cart = z.infer<typeof cartSchema>;
 // shipping address type
 
 export type ShippingAddress = z.infer<typeof shippingAddressSchema>;
+// payment method type
+export type PaymentMethod = z.infer<typeof paymentMethodSchema>;
+// type for orderschema
+export type Order = z.infer<typeof OrderSchema> & {
+	id: string;
+	createdAt: Date;
+	isPaid: boolean;
+	isDelivered: boolean;
+	paidAt: Date | null;
+	deliveredAt: Date | null;
+	orderItems: OrderItem[];
+	user: { name: string; email: string };
+};
+// OrderItem type
+export type OrderItem = z.infer<typeof OrderItemSchema>;
