@@ -123,6 +123,12 @@ export const OrderItemSchema = z.object({
 	price: z.string(),
 	quantity: z.number(),
 });
+export const paymentResultSchema = z.object({
+	id: z.string(),
+	status: z.string(),
+	update_time: z.string(),
+	email_address: z.string(),
+});
 // Types for Client side
 // Product Type
 export type Product = z.infer<typeof ProductSchema> & {
@@ -161,3 +167,5 @@ export type Order = z.infer<typeof OrderSchema> & {
 };
 // OrderItem type
 export type OrderItem = z.infer<typeof OrderItemSchema>;
+// Payment Result
+export type PaymentResult = z.infer<typeof paymentResultSchema>;

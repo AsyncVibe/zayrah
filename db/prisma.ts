@@ -29,6 +29,66 @@ const extendedPrisma = () =>
 					},
 				},
 			},
+			cart: {
+				itemsPrice: {
+					needs: { itemsPrice: true },
+					compute(cart) {
+						return cart.itemsPrice.toString() as string;
+					},
+				},
+				totalPrice: {
+					needs: { totalPrice: true },
+					compute(cart) {
+						return cart.totalPrice.toString();
+					},
+				},
+				shippingPrice: {
+					needs: { shippingPrice: true },
+					compute(cart) {
+						return cart.shippingPrice.toString();
+					},
+					taxPrice: {
+						needs: { taxPrice: true },
+						compute(cart) {
+							return cart.taxPrice.toString();
+						},
+					},
+				},
+			},
+			order: {
+				itemsPrice: {
+					needs: { itemsPrice: true },
+					compute(cart) {
+						return cart.itemsPrice.toString() as string;
+					},
+				},
+				totalPrice: {
+					needs: { totalPrice: true },
+					compute(cart) {
+						return cart.totalPrice.toString();
+					},
+				},
+				shippingPrice: {
+					needs: { shippingPrice: true },
+					compute(cart) {
+						return cart.shippingPrice.toString();
+					},
+					taxPrice: {
+						needs: { taxPrice: true },
+						compute(cart) {
+							return cart.taxPrice.toString();
+						},
+					},
+				},
+			},
+			orderItem: {
+				price: {
+					needs: { price: true },
+					compute(product) {
+						return product.price.toString();
+					},
+				},
+			},
 		},
 	});
 
