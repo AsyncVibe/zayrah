@@ -123,6 +123,17 @@ export const OrderItemSchema = z.object({
 	price: z.string(),
 	quantity: z.number(),
 });
+// schema for updating the user profile:
+export const updateUserProfileSchema = z.object({
+	name: z.string().min(3, "Name must be at least 3 characters"),
+	email: z.string().email("Invalid email address"),
+	// image: z.string().url("Invalid image URL"),
+	// phone: z.string().min(3, "Phone number must be at least 3 characters"),
+	// address: z.string().min(3, "Address must be at least 3 characters"),
+	// city: z.string().min(3, "City must be at least 3 characters"),
+	// postalCode: z.string().min(3, "Postal code must be at least 3 characters"),
+	// country: z.string().min(3, "Country must be at least 3 characters"),
+});
 export const paymentResultSchema = z.object({
 	id: z.string(),
 	status: z.string(),
@@ -169,3 +180,4 @@ export type Order = z.infer<typeof OrderSchema> & {
 export type OrderItem = z.infer<typeof OrderItemSchema>;
 // Payment Result
 export type PaymentResult = z.infer<typeof paymentResultSchema>;
+export type UserProfile = z.infer<typeof updateUserProfileSchema>;

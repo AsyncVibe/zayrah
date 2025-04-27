@@ -10,6 +10,7 @@ import { convertToPlainObject, formatError } from "../utils";
 import { revalidatePath } from "next/cache";
 import { paypal } from "../paypal";
 import { threadId } from "worker_threads";
+import { PAGE_SIZE } from "../constants";
 
 export async function createOrder() {
 	try {
@@ -219,4 +220,29 @@ async function updateOrderToPaid({
 	});
 	if (!updatedOrder) throw new Error("Order not found");
 	return updatedOrder;
+}
+// get user's orders
+export async function getMyOrders({
+	limit = PAGE_SIZE,
+	page = 1,
+}: {
+	limit?: number;
+	page?: number;
+}) {
+	const session = await auth();
+	const userId = session?.user?.id;
+	if (!userId) throw new Error("User is not authorized");
+	const data = await prisma.order.findMany({
+		where: { userId: userId! },
+		orderBy: { createdAt: "desc" },
+		take: limit,
+		skip: (page - 1) * limit,
+	});
+	const dataCount = await prisma.order.count({
+		where: { userId: userId! },
+	});
+	return {
+		data,
+		totalPages: Math.ceil(dataCount / limit),
+	};
 }
