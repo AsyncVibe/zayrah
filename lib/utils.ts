@@ -19,7 +19,7 @@ export function formatNumberWithDecimalPlaces(num: number): string {
 }
 // handling errors with zod
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export async function formatError(error: any) {
+export function formatError(error: any) {
 	// handling zod errors
 	if (error.name === "ZodError") {
 		const fieldErrors = Object.keys(error.errors).map((key) => {
@@ -134,3 +134,8 @@ export const formUrlQuery = ({
 		}
 	);
 };
+// format Number
+const NUMBER_FORMATTER = new Intl.NumberFormat("en-US");
+export function formatNumber(value: number) {
+	return NUMBER_FORMATTER.format(value);
+}
